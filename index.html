@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111713">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gaiola MKII">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <title>Gaiola MKII — READY TO ROLL</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0e0c; --panel:#151b17; --line:#2b382e; --text:#edf4ec; --muted:#8c9b8e; --orange:#ff7a22; --green:#b5f36b; --red:#ff625e; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; background:radial-gradient(ellipse at top, #1b251d 0%, var(--bg) 62%); color:var(--text); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; min-height:100svh; padding:env(safe-area-inset-top) 14px calc(18px + env(safe-area-inset-bottom)); }
+    .app { max-width:720px; margin:0 auto; }
+    header { display:flex; align-items:center; justify-content:space-between; padding:14px 2px 16px; border-bottom:1px solid var(--line); }
+    .brand { font-size:12px; letter-spacing:.22em; color:var(--orange); font-weight:900; }
+    .subtitle { font-size:10px; letter-spacing:.18em; color:var(--muted); margin-top:4px; }
+    .status { border:1px solid var(--line); border-radius:99px; padding:7px 10px; font-size:10px; color:var(--muted); letter-spacing:.08em; }
+    .status.on { color:var(--green); border-color:#49652e; }
+    .hero { margin:14px 0; padding:18px 18px 16px; background:linear-gradient(145deg,#1c241e,#111612); border:1px solid var(--line); border-radius:18px; position:relative; overflow:hidden; }
+    .hero:after { content:""; position:absolute; right:-35px; top:-55px; width:150px; height:150px; border:1px solid #344335; border-radius:50%; box-shadow:0 0 0 18px #202b211a,0 0 0 38px #202b211a; pointer-events:none; }
+    .label { color:var(--muted); font-size:10px; letter-spacing:.16em; text-transform:uppercase; }
+    .speedline { display:flex; align-items:baseline; gap:10px; margin-top:3px; }
+    #speed { font-size:clamp(86px,24vw,140px); line-height:.98; font-weight:800; letter-spacing:-.08em; font-variant-numeric:tabular-nums; }
+    .unit { color:var(--orange); font-size:14px; font-weight:800; letter-spacing:.12em; }
+    .herofoot { display:flex; justify-content:space-between; align-items:center; margin-top:14px; gap:12px; color:var(--muted); font-size:11px; }
+    .gpsdot { display:inline-block; width:7px; height:7px; background:#66756a; border-radius:50%; margin-right:6px; }
+    .gpsdot.on { background:var(--green); box-shadow:0 0 9px #b5f36b88; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .tile { min-height:104px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
+    .tile .value { margin-top:10px; font-size:clamp(23px,7vw,34px); font-weight:750; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+    .tile .smallunit { font-size:11px; color:var(--muted); font-weight:600; letter-spacing:0; }
+    .wide { grid-column:1 / -1; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    button { border:1px solid var(--line); border-radius:12px; min-height:48px; background:#202a22; color:var(--text); font:inherit; font-size:12px; font-weight:800; letter-spacing:.08em; cursor:pointer; }
+    button.primary { background:var(--orange); color:#17100b; border-color:var(--orange); }
+    button:active { transform:scale(.99); }
+    .notice { color:var(--muted); font-size:11px; line-height:1.5; margin:14px 2px 0; }
+    .footer { display:flex; justify-content:space-between; gap:8px; border-top:1px solid var(--line); padding-top:12px; margin-top:18px; color:#657468; font-size:9px; letter-spacing:.1em; }
+    @media (min-width:600px) { .grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .wide { grid-column:span 2; } .hero { padding:24px; } }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div><div class="brand">GAIOLA MKII</div><div class="subtitle">READY TO ROLL · PROTÓTIPO 0.1</div></div>
+    <div id="status" class="status">GPS STANDBY</div>
+  </header>
+
+  <section class="hero">
+    <div class="label">Velocidade por GPS</div>
+    <div class="speedline"><span id="speed">—</span><span class="unit">KM/H</span></div>
+    <div class="herofoot"><span><i id="gpsdot" class="gpsdot"></i><span id="gpslabel">Aguardando permissão de localização</span></span><span id="accuracy">Precisão —</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="tile"><div class="label">Distância da trilha</div><div class="value"><span id="distance">0.00</span> <span class="smallunit">km</span></div></div>
+    <div class="tile"><div class="label">Tempo em movimento</div><div class="value" id="elapsed">00:00:00</div></div>
+    <div class="tile"><div class="label">Direção</div><div class="value"><span id="heading">—</span><span class="smallunit"> °</span></div></div>
+    <div class="tile"><div class="label">Altitude GPS</div><div class="value"><span id="altitude">—</span><span class="smallunit"> m</span></div></div>
+    <div class="tile wide"><div class="label">Coordenadas</div><div class="value" style="font-size:16px;letter-spacing:0" id="coords">—, —</div></div>
+    <div class="tile wide"><div class="label">Última precisão GPS</div><div class="value" style="font-size:18px" id="lastfix">Sem leitura</div></div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" id="start">INICIAR / GPS</button>
+    <button id="reset">ZERAR TRILHA</button>
+    <button id="compass">ATIVAR BÚSSOLA</button>
+    <button id="export">EXPORTAR GPX</button>
+  </div>
+  <p class="notice" id="message">Protótipo local. Autorize a localização quando solicitado. Para o GPS funcionar no iPhone, esta página precisa ser publicada em HTTPS. A bússola depende do modelo, permissões e orientação do aparelho.</p>
+  <div class="footer"><span>ABRÓBA · AP 1.6</span><span>OFFLINE READY*</span><span>MKII / 0.1</span></div>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let watchId = null, startedAt = null, timerId = null, lastPoint = null, meters = 0, movingMs = 0, lastMoveAt = null, track = [];
+  let lastSpeed = 0;
+  const fmtTime = ms => { let s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return [h,m,sec].map(v=>String(v).padStart(2,'0')).join(':'); };
+  const rad = n => n*Math.PI/180;
+  function haversine(a,b) { const R=6371000, dLat=rad(b.lat-a.lat), dLon=rad(b.lon-a.lon), x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(x)); }
+  function setMsg(s) { $('message').textContent=s; }
+  function updateStatus(on) { $('status').textContent=on?'GPS ATIVO':'GPS STANDBY'; $('status').classList.toggle('on',on); $('gpsdot').classList.toggle('on',on); }
+  function onPosition(pos) {
+    const c=pos.coords, point={lat:c.latitude,lon:c.longitude,time:new Date(pos.timestamp).toISOString(),alt:c.altitude};
+    let speed = c.speed != null && Number.isFinite(c.speed) ? Math.max(0,c.speed*3.6) : 0;
+    if (lastPoint) {
+      const d=haversine(lastPoint,point);
+      // Ignore implausible jumps; phone GPS can drift when stationary.
+      if (d < 150 && d > 1.5) { meters += d; track.push(point); }
+    } else { track.push(point); }
+    lastPoint=point; lastSpeed=speed;
+    $('speed').textContent= speed < 1 ? '0' : String(Math.round(speed));
+    $('accuracy').textContent='Precisão '+Math.round(c.accuracy)+' m';
+    $('gpslabel').textContent='Localização recebida';
+    $('coords').textContent=c.latitude.toFixed(5)+', '+c.longitude.toFixed(5);
+    $('altitude').textContent=c.altitude == null ? '—' : Math.round(c.altitude);
+    $('distance').textContent=(meters/1000).toFixed(2);
+    $('lastfix').textContent=new Date(pos.timestamp).toLocaleTimeString('pt-BR')+' · ±'+Math.round(c.accuracy)+' m';
+    updateStatus(true);
+    if (speed > 2) { if (lastMoveAt) movingMs += pos.timestamp-lastMoveAt; lastMoveAt=pos.timestamp; }
+    else lastMoveAt=null;
+    $('elapsed').textContent=fmtTime(movingMs);
+  }
+  function onError(err) { updateStatus(false); setMsg('GPS: '+err.message+' — confira a permissão de localização e se a página está em HTTPS.'); }
+  $('start').addEventListener('click', () => {
+    if (!navigator.geolocation) { setMsg('Este navegador não oferece geolocalização.'); return; }
+    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId=null; $('start').textContent='INICIAR / GPS'; updateStatus(false); setMsg('GPS pausado.'); return; }
+    watchId=navigator.geolocation.watchPosition(onPosition,onError,{enableHighAccuracy:true,maximumAge:1000,timeout:15000});
+    $('start').textContent='PAUSAR GPS'; setMsg('GPS iniciado. Aguarde alguns segundos por uma leitura estável.');
+  });
+  $('reset').addEventListener('click', () => {
+    if (!confirm('Zerar distância e trilha gravada?')) return;
+    meters=0; movingMs=0; lastPoint=null; lastMoveAt=null; track=[];
+    $('distance').textContent='0.00'; $('elapsed').textContent='00:00:00'; $('speed').textContent='—'; $('lastfix').textContent='Sem leitura';
+    setMsg('Trilha zerada.');
+  });
+  $('compass').addEventListener('click', async () => {
+    try {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const permission=await DeviceOrientationEvent.requestPermission();
+        if (permission !== 'granted') { setMsg('Permissão da bússola não concedida.'); return; }
+      }
+      window.addEventListener('deviceorientation', e => {
+        let h = e.webkitCompassHeading;
+        if (h == null && e.alpha != null) h=(360-e.alpha)%360;
+        if (h != null) $('heading').textContent=String(Math.round(h));
+      }, true);
+      setMsg('Bússola ativada, se disponível neste aparelho e navegador.');
+    } catch(e) { setMsg('Não foi possível ativar a bússola: '+e.message); }
+  });
+  $('export').addEventListener('click', () => {
+    if (track.length < 2) { setMsg('Grave pelo menos dois pontos GPS antes de exportar GPX.'); return; }
+    const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    const pts=track.map(p=>`<trkpt lat="${p.lat}" lon="${p.lon}">${p.alt==null?'':`<ele>${p.alt}</ele>`}<time>${esc(p.time)}</time></trkpt>`).join('');
+    const xml=`<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="Gaiola MKII" xmlns="http://www.topografix.com/GPX/1/1"><trk><name>Abróba - trilha</name><trkseg>${pts}</trkseg></trk></gpx>`;
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([xml],{type:'application/gpx+xml'})); a.download='abroba-trilha.gpx'; a.click(); URL.revokeObjectURL(a.href);
+  });
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
